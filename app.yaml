@@ -1,0 +1,22 @@
+application: gdn-galleries
+version: 1
+runtime: python27
+api_version: 1
+threadsafe: true
+
+handlers:
+- url : /related/galleries.*
+  script: galleries.app
+- url : /galleries/.*
+  script: galleries.app
+- url: /components/.*
+  script: components.app
+- url : /.*
+  script: experiments.app
+
+libraries:
+- name: jinja2
+  version: latest
+
+builtins:
+- remote_api: on  

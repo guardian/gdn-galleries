@@ -1,0 +1,17 @@
+<! docttype>
+
+<html>
+
+<body>
+	<section id="us-most-popular">
+
+
+		<p class="b2 zg-date">{{component_title}}</p>
+
+		<ol class="most-popular-items">
+		{% for item in most_popular %}
+		<li class="l1 thumb most-popular-items-item"><img class="tinythumb" src="{{item.fields.thumbnail}}"><span class="rank">{{loop.index}}.</span> <a href="{{item.webUrl}}">{{item.fields.headline}}</a></li>
+		{% endfor %}
+		</ul>
+	</section>
+</html>
