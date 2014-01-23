@@ -7,7 +7,7 @@ threadsafe: true
 handlers:
 - url : /related/galleries.*
   script: galleries.app
-- url : /galleries/.*
+- url : /components/galleries/.*
   script: galleries.app
 - url: /components/.*
   script: components.app

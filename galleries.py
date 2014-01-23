@@ -91,12 +91,12 @@ def all_images(page_url):
 	return data.get("response", {}).get("content", {}).get("mediaAssets", [])
 
 class RelatedGalleries(webapp2.RequestHandler):
-	def get(self):
+	def get(self, target= 4):
 		template = jinja_environment.get_template("related-galleries.html")
 
 		data = {"title" : "More galleries",}
 		if "page-url" in self.request.params:
-			data["galleries"] = related_galleries(self.request.params["page-url"])[:4]
+			data["galleries"] = related_galleries(self.request.params["page-url"])[:target]
 		else:
 			abort(400, "No page url specified")
 
@@ -126,7 +126,8 @@ class AllImages(webapp2.RequestHandler):
 		self.response.out.write(template.render(template_values))
 
 app = webapp2.WSGIApplication([
-	('/related/galleries', RelatedGalleries),
-	('/related/galleries/recent', RecentRelatedGalleries),
-	('/galleries/all-pictures', AllImages),],
+	('/components/galleries/related', RelatedGalleries),
+	('/components/galleries/related/<target>', RelatedGalleries),
+	('/components/galleries/related/recent', RecentRelatedGalleries),
+	('/components/galleries/all-pictures', AllImages),],
 	debug=True)
