@@ -26,7 +26,8 @@ def related_galleries(page_url, recent = None):
 		"show-related" : "true",
 		"tag" : "type/gallery",
 		"order-by" : "newest",
-		"show-fields" : "thumbnail,headline",}
+		"show-fields" : "thumbnail,headline",
+		"page-size" : "24",}
 
 	if recent:
 		params['date-id'] = 'date/last30days'
@@ -125,9 +126,23 @@ class AllImages(webapp2.RequestHandler):
 		headers.set_cors_headers(self.response)
 		self.response.out.write(template.render(template_values))
 
+class RelatedGalleriesBox(webapp2.RequestHandler):
+	def get(self, target='12'):
+		template = jinja_environment.get_template("components/gallery-box.html")
+
+		data = {"title" : "More galleries",}
+		if "page-url" in self.request.params:
+			data["galleries"] = related_galleries(self.request.params["page-url"])[:int(target)]
+		else:
+			abort(400, "No page url specified")
+
+		headers.set_cors_headers(self.response)
+		self.response.out.write(template.render(data))
+
 app = webapp2.WSGIApplication([
 	('/components/galleries/related', RelatedGalleries),
 	('/components/galleries/related/(\d+)', RelatedGalleries),
 	('/components/galleries/related/recent', RecentRelatedGalleries),
-	('/components/galleries/all-pictures', AllImages),],
+	('/components/galleries/all-pictures', AllImages),
+	('/components/galleries/related/box', RelatedGalleriesBox),],
 	debug=True)
