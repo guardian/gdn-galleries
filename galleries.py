@@ -46,22 +46,25 @@ def related_galleries(page_url, recent = None):
 	if cached_content:
 		return json.loads(cached_content)
 
-	content_api_url = "http://content.guardianapis.com" + content_path + "?" + urllib.urlencode(params)
+	content_api_url = "http://prod-mq-elb.content.guardianapis.com/api" + content_path + "?" + urllib.urlencode(params)
 
 	logging.info(content_api_url)
 
 	result = fetch(content_api_url, deadline = 9)
 
 	if not result.status_code == 200:
-		return None
+		logging.warning("CAPI returned status code: %d" % result.status_code)
+		return []
 
 	data = json.loads(result.content)
 
-	logging.info(data)
+	#logging.info(data)
 
-	if not "relatedContent" in data["response"]: return None
+	if not "relatedContent" in data["response"]:
+		logging.warning("No relatedContent present in response")
+		return []
 
-	related_content = data["response"]["relatedContent"]
+	related_content = [item for item in data["response"]["relatedContent"] if "fields" in item and "thumbnail" in item['fields']]
 
 	memcache.add(cache_key, json.dumps(related_content), 10 * 60)
 
@@ -130,13 +133,19 @@ class RelatedGalleriesBox(webapp2.RequestHandler):
 	def get(self, target='12'):
 		template = jinja_environment.get_template("components/gallery-box.html")
 
+		headers.set_cors_headers(self.response)
+
 		data = {"title" : "More galleries",}
 		if "page-url" in self.request.params:
-			data["galleries"] = related_galleries(self.request.params["page-url"])[:int(target)]
+			gallery_data = related_galleries(self.request.params["page-url"])
+
+			if not gallery_data:
+				abort(404, "No related content")
+
+			data["galleries"] = gallery_data[:int(target)]
 		else:
 			abort(400, "No page url specified")
 
-		headers.set_cors_headers(self.response)
 		self.response.out.write(template.render(data))
 
 app = webapp2.WSGIApplication([

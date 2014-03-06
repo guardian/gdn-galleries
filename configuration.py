@@ -7,10 +7,10 @@ def create(key, value):
 	key = config.put()
 	return key
 
-def lookup(key):
+def lookup(key, default=None):
 	results = Configuration.query(Configuration.key == key)
 	if not results.iter().has_next():
-		return None
+		return default
 
 	key_value = results.iter().next().value
 	logging.info(key_value)
