@@ -8,6 +8,7 @@ from google.appengine.api import memcache
 import configuration
 
 CONTENT_API_HOST = configuration.lookup('CONTENT_API_HOST', 'content.guardianapis.com')
+CONTENT_API_KEY = configuration.lookup('CONTENT_API_KEY')
 
 def content_id(url):
 	parsed_url = urlparse.urlparse(url)
@@ -16,10 +17,10 @@ def content_id(url):
 def read(content_id, params = None):
 	client = memcache.Client()
 
-	url = "http://%s%s" % (CONTENT_API_HOST, content_id)
+	url = "http://%s%s?api-key=%s" % (CONTENT_API_HOST, content_id, CONTENT_API_KEY)
 
 	if params:
-		url = url + "?" + urllib.urlencode(params)
+		url = url + "&" + urllib.urlencode(params)
 
 	logging.info(url)
 

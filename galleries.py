@@ -18,6 +18,8 @@ import urllib
 jinja_environment = jinja2.Environment(
 	loader=jinja2.FileSystemLoader(os.path.join(os.path.dirname(__file__), "templates")))
 
+CONTENT_API_HOST = configuration.lookup('CONTENT_API_HOST', 'content.guardianapis.com')
+CONTENT_API_KEY = configuration.lookup('CONTENT_API_KEY')
 
 #http://content.guardianapis.com/uk/gallery/2012/dec/18/queen-visits-downing-street-pictures?format=json&show-related=true&tag=type%2Fgallery&order-by=newest
 
@@ -27,10 +29,12 @@ def related_galleries(page_url, recent = None):
 		"tag" : "type/gallery",
 		"order-by" : "newest",
 		"show-fields" : "thumbnail,headline",
-		"page-size" : "24",}
+		"page-size" : "24",
+		"api-key" : CONTENT_API_KEY,}
 
 	if recent:
-		params['date-id'] = 'date/last30days'
+		last30days = (datetime.date.today() + datetime.timedelta(-30)).isoformat()
+		params['from-date'] = last30days
 
 	parsed_url = urlparse(page_url)
 
@@ -46,7 +50,7 @@ def related_galleries(page_url, recent = None):
 	if cached_content:
 		return json.loads(cached_content)
 
-	content_api_url = "http://prod-mq-elb.content.guardianapis.com/api" + content_path + "?" + urllib.urlencode(params)
+	content_api_url = "http://" + CONTENT_API_HOST + content_path + "?" + urllib.urlencode(params)
 
 	logging.info(content_api_url)
 
@@ -75,11 +79,11 @@ def all_images(page_url):
 		"show-media" : "picture",
 		"order-by" : "newest",
 		"show-fields" : "thumbnail,headline",
-		"api-key" : configuration.lookup("CONTENT_API_KEY"),}
+		"api-key" : CONTENT_API_KEY,}
 
 	parsed_url = urlparse(page_url)
 
-	content_api_url = "http://content.guardianapis.com" + parsed_url.path + "?" + urllib.urlencode(params)
+	content_api_url = "http://" + CONTENT_API_HOST + parsed_url.path + "?" + urllib.urlencode(params)
 
 	#logging.info(content_api_url)
 
