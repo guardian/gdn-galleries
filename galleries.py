@@ -29,8 +29,11 @@ def related_galleries(page_url, recent = None):
 		"tag" : "type/gallery",
 		"order-by" : "newest",
 		"show-fields" : "thumbnail,headline",
-		"page-size" : "24",
-		"api-key" : CONTENT_API_KEY,}
+		"page-size" : "24",}
+
+	if CONTENT_API_KEY:
+		params["api-key"] = CONTENT_API_KEY
+
 
 	if recent:
 		last30days = (datetime.date.today() + datetime.timedelta(-30)).isoformat()
@@ -52,7 +55,7 @@ def related_galleries(page_url, recent = None):
 
 	content_api_url = "http://" + CONTENT_API_HOST + content_path + "?" + urllib.urlencode(params)
 
-	logging.info(content_api_url)
+	#logging.info(content_api_url)
 
 	result = fetch(content_api_url, deadline = 9)
 
@@ -78,8 +81,10 @@ def all_images(page_url):
 	params = {"format" : "json",
 		"show-media" : "picture",
 		"order-by" : "newest",
-		"show-fields" : "thumbnail,headline",
-		"api-key" : CONTENT_API_KEY,}
+		"show-fields" : "thumbnail,headline",}
+
+	if CONTENT_API_KEY:
+		params["api-key"] = CONTENT_API_KEY
 
 	parsed_url = urlparse(page_url)
 

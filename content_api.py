@@ -17,10 +17,13 @@ def content_id(url):
 def read(content_id, params = None):
 	client = memcache.Client()
 
-	url = "http://%s%s?api-key=%s" % (CONTENT_API_HOST, content_id, CONTENT_API_KEY)
+	url = "http://%s%s" % (CONTENT_API_HOST, content_id)
 
+	if CONTENT_API_KEY and not "api-key" in params:
+		params['api-key'] = CONTENT_API_KEY
+		
 	if params:
-		url = url + "&" + urllib.urlencode(params)
+		url = url + "?" + urllib.urlencode(params)
 
 	logging.info(url)
 
